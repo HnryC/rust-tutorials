@@ -1,0 +1,4 @@
+fast: cargo build
+fast + run: cargo run
+optimised: cargo build --release
+
