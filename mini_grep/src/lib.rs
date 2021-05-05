@@ -9,13 +9,19 @@ pub struct GrepItems {
 }
 
 impl GrepItems {
-    pub fn new(args: &[String]) -> Result <GrepItems, &str> {
-        if args.len() < 3 {
-            return Err("Not enough supplied arguments");
-        }
+    pub fn new(mut args: env::Args) -> Result <GrepItems, &'static str> {
+        args.next();
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Did not recive a query"),
+        };
+        let file = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Did not recive file name"),
+        };
         Ok (GrepItems {
-            file: args[1].clone(),
-            query: args[2].clone(),
+            file,
+            query,
             case_sensitive: env::var("CASE_INSENSITIVE").is_err(),
         })
     }
@@ -38,24 +44,25 @@ pub fn run(items: &GrepItems) -> Result<(), Box<dyn error::Error>> {
 }
 
 pub fn search<'a>(contents: &'a str, query: &str) -> Vec<&'a str>{
-    let mut lines = vec![];
-    for line in contents.split('\n') {
-        if line.contains(query) {
-            lines.push(line);
-        }
-    }
-    lines
+    contents
+        .lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
 
 pub fn search_case_insensitive<'a>(contents: &'a str, query: &str) -> Vec<&'a str>{
-    let mut lines = vec![];
-    let query = query.to_lowercase();
-    for line in contents.split('\n') {
-        if line.to_lowercase().contains(&query) {
-            lines.push(line);
-        }
-    }
-    lines
+    contents
+        .lines()
+        .filter(|line| line.to_lowercase().contains(&query.to_lowercase()))
+        .collect()
+    //let mut lines = vec![];
+    //let query = query.to_lowercase();
+    //for line in contents.split('\n') {
+        //if line.to_lowercase().contains(&query) {
+            //lines.push(line);
+        //}
+    //}
+    //lines
 }
 
 #[cfg(test)]

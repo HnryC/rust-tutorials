@@ -4,8 +4,7 @@ use mini_grep::*;
 
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let items = GrepItems::new(&args).unwrap_or_else(|err| {
+    let items = GrepItems::new(env::args()).unwrap_or_else(|err| {
         eprintln!("Error reading arguments: {}", err);
         process::exit(1);
     },);
